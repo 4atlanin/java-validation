@@ -1,13 +1,15 @@
 package com.example.validation.validators.constraints;
 
+import com.example.validation.validators.domain.TestClassLevelAnnotation;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class ClassLevelValidator implements ConstraintValidator<ClassLevelCheck, Object[]>
+public class ClassLevelValidator implements ConstraintValidator<ClassLevelCheck, TestClassLevelAnnotation>
 {
     @Override
-    public boolean isValid( Object[] params, ConstraintValidatorContext context )
+    public boolean isValid( TestClassLevelAnnotation value, ConstraintValidatorContext context )
     {
-        return (Integer) params[0] <= (Integer) params[1];
+        return value.getMin() <= value.getMax();
     }
 }

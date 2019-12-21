@@ -7,17 +7,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.Size;
+import javax.validation.executable.ExecutableType;
+import javax.validation.executable.ValidateOnExecution;
 
 @Data
 @Component
 @Validated
 public class TestConstructorLevelAnnotation
 {
+    @Size( max = 1 )
     private String incorrect;
 
-   // @ConstructorLevelCheck
+    // @ConstructorLevelCheck
     @Autowired
-    public TestConstructorLevelAnnotation( @Qualifier(value = "longString") @Size(max = 1) String incorrect )
+  //  @ValidateOnExecution(type = ExecutableType.CONSTRUCTORS)
+    public TestConstructorLevelAnnotation( @Qualifier( value = "longString" ) @Size( max = 1 ) String incorrect )
     {
         this.incorrect = incorrect;
     }

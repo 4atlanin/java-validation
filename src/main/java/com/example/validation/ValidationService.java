@@ -22,7 +22,6 @@ public class ValidationService
     Validator validator;
 
     @Autowired
-    @Valid
     private TestConstructorLevelAnnotation testConstructorLevelAnnotation;
 
     public Set<ConstraintViolation<TestCustomAnnotation>> validateCustomAnnotation( TestCustomAnnotation validationPOSTDTO )
@@ -84,25 +83,18 @@ public class ValidationService
 
     //TODO Валидация параметров консруктора работает только через явное обращение к validator :(
     // @MethodLevelCheck( min = 10, max = 20 )       т.к. метод не принимает параметров, то аннотацию для проверки параметров нельзя вешать на него
+
+    // PS Кажись, только аннотациями неполучится вызвать проверку параметров конструктора
     public Set<ConstraintViolation<TestConstructorLevelAnnotation>> testConstructorLevelValidationTriggeredManually() throws NoSuchMethodException
     {
         return validator.forExecutables().validateConstructorParameters(
-            ReflectionUtils.accessibleConstructor( TestConstructorLevelAnnotation.class, int.class, int.class, Integer.class ),
-            new Object[] { null } );
+            ReflectionUtils.accessibleConstructor( TestConstructorLevelAnnotation.class, String.class ),
+            new Object[] { "1234567" } );
 
     }
 
-    public Set<ConstraintViolation<TestConstructorLevelAnnotation>> testConstructorLevelValidationTriggeredByAnnotation() throws NoSuchMethodException
-    {
-        return validator.forExecutables().validateConstructorParameters(
-            ReflectionUtils.accessibleConstructor( TestConstructorLevelAnnotation.class, int.class, int.class, Integer.class ),
-            new Object[] { 2,1, null } );
-
-    }
-
-
-
-    public String testBean() {
+/*    public String testBean() {
+        new TestConstructorLevelAnnotation( "124356789" );
         return testConstructorLevelAnnotation.getIncorrect();
-    }
+    }*/
 }
