@@ -8,11 +8,11 @@ import javax.validation.constraintvalidation.SupportedValidationTarget;
 import javax.validation.constraintvalidation.ValidationTarget;
 
 @SupportedValidationTarget( ValidationTarget.PARAMETERS )
-public class ConstructorValidator implements ConstraintValidator<ConstructorLevelCheck, TestConstructorLevelAnnotation>
+public class ConstructorValidator implements ConstraintValidator<ConstructorLevelCheck, Object[]>
 {
     @Override
-    public boolean isValid( TestConstructorLevelAnnotation value, ConstraintValidatorContext context )
+    public boolean isValid( Object[] value, ConstraintValidatorContext context )
     {
-        return value.getA() <= value.getB();
+        return value[0] instanceof Integer;
     }
 }

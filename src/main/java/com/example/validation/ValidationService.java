@@ -1,11 +1,13 @@
 package com.example.validation;
 
+import com.example.validation.validators.constraints.ConstructorLevelCheck;
 import com.example.validation.validators.constraints.MethodLevelCheck;
 import com.example.validation.validators.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
@@ -20,6 +22,10 @@ public class ValidationService
 {
     @Autowired
     Validator validator;
+
+    @Autowired
+    @Valid
+    private TestConstructorLevelAnnotation testConstructorLevelAnnotation;
 
     public Set<ConstraintViolation<TestCustomAnnotation>> validateCustomAnnotation( TestCustomAnnotation validationPOSTDTO )
     {
@@ -63,6 +69,15 @@ public class ValidationService
         return false;
     }
 
+    /*Если валидатор уровня метода проверяет респонс (т.е. нет аннотации @SupportedValidationTarget( ValidationTarget.PARAMETERS))
+     *  на методе который возвращает void, мы получим ConstraintDeclarationException: HV000132: Void methods must not be constrained or marked for cascaded validation
+     */
+    @MethodLevelCheck( min = 10, max = 20 )
+    public void testValidateAllMethodParametersFail( int min, int max )
+    {
+        /*return false;*/
+    }
+
     @AssertTrue                                     //работает благодаря @Validated над классом
     public boolean testValidateMethodResponse()
     {
@@ -71,12 +86,25 @@ public class ValidationService
 
     //TODO Валидация параметров консруктора работает только через явное обращение к validator :(
     // @MethodLevelCheck( min = 10, max = 20 )       т.к. метод не принимает параметров, то аннотацию для проверки параметров нельзя вешать на него
-    public Set<ConstraintViolation<TestConstructorLevelAnnotation>> testConstructorLevelValidation() throws NoSuchMethodException
+    public Set<ConstraintViolation<TestConstructorLevelAnnotation>> testConstructorLevelValidationTriggeredManually() throws NoSuchMethodException
     {
+        return validator.forExecutables().validateConstructorParameters(
+            ReflectionUtils.accessibleConstructor( TestConstructorLevelAnnotation.class, int.class, int.class, Integer.class ),
+            new Object[] { null } );
 
+    }
+
+    public Set<ConstraintViolation<TestConstructorLevelAnnotation>> testConstructorLevelValidationTriggeredByAnnotation() throws NoSuchMethodException
+    {
         return validator.forExecutables().validateConstructorParameters(
             ReflectionUtils.accessibleConstructor( TestConstructorLevelAnnotation.class, int.class, int.class, Integer.class ),
             new Object[] { 2,1, null } );
 
+    }
+
+
+
+    public int testBean() {
+        return testConstructorLevelAnnotation.getB();
     }
 }

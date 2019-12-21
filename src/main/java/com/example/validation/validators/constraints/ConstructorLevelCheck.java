@@ -11,7 +11,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint( validatedBy = ConstructorValidator.class )
 public @interface ConstructorLevelCheck
 {
-    String message() default "validate all parameters of method";
+    String message() default "validate all parameters of constructore";
 
     Class<?>[] groups() default {};
 

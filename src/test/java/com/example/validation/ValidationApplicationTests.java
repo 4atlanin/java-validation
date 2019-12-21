@@ -139,8 +139,16 @@ class ValidationApplicationTests
     }
 
     @Test
-    void testConstructorLevelAnnotation()
+    void testConstructorLevelValidationTriggeredManually() throws NoSuchMethodException
     {
-        assertThrows( ConstraintViolationException.class, () -> validationService.testConstructorLevelValidation() );
+         List<String> messages = validationService.testConstructorLevelValidationTriggeredManually().stream().map( ConstraintViolation::getMessage ).collect( Collectors.toList() );
+        assertEquals( 1, messages.size() );
+
+        assertTrue( messages.contains( "must not be null" ) );    //will take this message from ValidationMessages.properties
+    }
+
+    @Test
+    void testGetBean() {
+        assertThrows( ConstraintViolationException.class, () -> validationService.testBean());
     }
 }
