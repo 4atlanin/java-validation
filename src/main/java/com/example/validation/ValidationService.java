@@ -1,13 +1,11 @@
 package com.example.validation;
 
-import com.example.validation.validators.constraints.ConstructorLevelCheck;
 import com.example.validation.validators.constraints.MethodLevelCheck;
 import com.example.validation.validators.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
@@ -104,7 +102,7 @@ public class ValidationService
 
 
 
-    public int testBean() {
-        return testConstructorLevelAnnotation.getB();
+    public String testBean() {
+        return testConstructorLevelAnnotation.getIncorrect();
     }
 }
