@@ -1,5 +1,7 @@
 package com.example.validation.validators.constraints;
 
+import com.example.validation.validators.constraints.custom_validation.WithoutProhibitedSubstring;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import javax.validation.ReportAsSingleViolation;

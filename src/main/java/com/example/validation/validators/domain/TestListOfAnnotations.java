@@ -1,6 +1,6 @@
 package com.example.validation.validators.domain;
 
-import com.example.validation.validators.constraints.WithoutProhibitedSubstring;
+import com.example.validation.validators.constraints.custom_validation.WithoutProhibitedSubstring;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

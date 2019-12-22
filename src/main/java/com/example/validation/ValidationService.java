@@ -1,7 +1,14 @@
 package com.example.validation;
 
-import com.example.validation.validators.constraints.MethodLevelCheck;
-import com.example.validation.validators.domain.*;
+import com.example.validation.validators.constraints.class_level_validation.TestClassLevelAnnotation;
+import com.example.validation.validators.constraints.constructor_level_validation.TestConstructorLevelAnnotation;
+import com.example.validation.validators.constraints.custom_validation.TestCustomAnnotation;
+import com.example.validation.validators.constraints.method_level_validation.MethodLevelCheck;
+import com.example.validation.validators.constraints.validation_with_inheritance.InheritanceValidationTest;
+import com.example.validation.validators.domain.TestCombinedAnnotationWithReportAsSingleViolation;
+import com.example.validation.validators.domain.TestListOfAnnotations;
+import com.example.validation.validators.domain.TestOverrideAttributes;
+import org.hibernate.validator.constraints.ParameterScriptAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
@@ -20,9 +27,6 @@ public class ValidationService
 {
     @Autowired
     Validator validator;
-
-    @Autowired
-    private TestConstructorLevelAnnotation testConstructorLevelAnnotation;
 
     public Set<ConstraintViolation<TestCustomAnnotation>> validateCustomAnnotation( TestCustomAnnotation validationPOSTDTO )
     {
@@ -66,13 +70,10 @@ public class ValidationService
         return false;
     }
 
-    /*Если валидатор уровня метода проверяет респонс (т.е. нет аннотации @SupportedValidationTarget( ValidationTarget.PARAMETERS))
-     *  на методе который возвращает void, мы получим ConstraintDeclarationException: HV000132: Void methods must not be constrained or marked for cascaded validation
-     */
-    @MethodLevelCheck( min = 10, max = 20 )
-    public void testValidateAllMethodParametersFail( int min, int max )
+    @ParameterScriptAssert( lang = "javascript", script = "min <= max" )
+    public boolean testParameterScriptAssert( int min, int max )
     {
-        /*return false;*/
+        return false;
     }
 
     @AssertTrue                                     //работает благодаря @Validated над классом
@@ -93,8 +94,9 @@ public class ValidationService
 
     }
 
-/*    public String testBean() {
-        new TestConstructorLevelAnnotation( "124356789" );
-        return testConstructorLevelAnnotation.getIncorrect();
-    }*/
+    public boolean testValidateFieldInheritance( @Valid InheritanceValidationTest obj )   //работает благодаря @Validated над классом
+    {
+        return false;
+    }
+
 }

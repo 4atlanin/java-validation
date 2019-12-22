@@ -10,7 +10,7 @@ public class TestOverrideAttributes
 {
 
     /**
-     * Constraint над геттером - тоже самое что и над полем
+     * Constraint над геттером - тоже самое что и над полем, но если и там и там, то будет валидировать 2 раза
      */
     private String testString;
 

@@ -1,6 +1,6 @@
 package com.example.validation;
 
-import com.example.validation.validators.domain.TestCustomAnnotation;
+import com.example.validation.validators.constraints.custom_validation.TestCustomAnnotation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,10 +16,8 @@ public class ValidationController
     @PostMapping("/post")
     ResponseEntity createrSomething(@RequestBody TestCustomAnnotation dto ) {
 
-
         validationService.validateCustomAnnotation( dto );
 
         return ResponseEntity.ok( dto );
     }
-
 }
