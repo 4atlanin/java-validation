@@ -5,6 +5,7 @@ import com.example.validation.validators.constraints.custom_validation.TestCusto
 import com.example.validation.validators.constraints.validation_with_inheritance.InheritanceValidationTest;
 import com.example.validation.validators.domain.TestCombinedAnnotationWithReportAsSingleViolation;
 import com.example.validation.validators.domain.TestListOfAnnotations;
+import com.example.validation.validators.domain.TestMessageInterpolation;
 import com.example.validation.validators.domain.TestOverrideAttributes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,7 +161,6 @@ class ValidationApplicationTests
 
         assertTrue( messages.contains( "Test message from file" ) );
 
-
     }
 
     @Test
@@ -192,7 +192,20 @@ class ValidationApplicationTests
             .getConstraintViolations().stream()
             .map( ConstraintViolation::getMessage )
             .collect( Collectors.toList() );
-
         assertTrue( messages.contains( "script expression \"min <= max\" didn't evaluate to true" ) );
+    }
+
+    @Test
+    void testMessageInterpolation()
+    {
+        List<String> messages = assertThrows( ConstraintViolationException.class,
+            () -> validationService.testMessageInterpolation( new TestMessageInterpolation( "qwe", "   " ) ) )
+            .getConstraintViolations().stream()
+            .map( ConstraintViolation::getMessage )
+            .collect( Collectors.toList() );
+
+        assertEquals( 2, messages.size() );
+        assertTrue( messages.contains( "Amount of whitespaces in the blank String is    . Formatted part is '   '." ) );
+        assertTrue( messages.contains( "it's my own validation message min = 1 and max = 2 and validatedValue = qwe" ) );
     }
 }

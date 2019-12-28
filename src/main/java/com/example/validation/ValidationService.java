@@ -7,6 +7,7 @@ import com.example.validation.validators.constraints.method_level_validation.Met
 import com.example.validation.validators.constraints.validation_with_inheritance.InheritanceValidationTest;
 import com.example.validation.validators.domain.TestCombinedAnnotationWithReportAsSingleViolation;
 import com.example.validation.validators.domain.TestListOfAnnotations;
+import com.example.validation.validators.domain.TestMessageInterpolation;
 import com.example.validation.validators.domain.TestOverrideAttributes;
 import org.hibernate.validator.constraints.ParameterScriptAssert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +44,9 @@ public class ValidationService
         return validator.validate( dto );
     }
 
-    public Set<ConstraintViolation<TestListOfAnnotations>> testValidAnnotation( @Valid TestClassLevelAnnotation dto )  //@Valid сработает только если есть @Validated
+    public void testValidAnnotation( @Valid TestClassLevelAnnotation dto )  //@Valid сработает только если есть @Validated
     // Можно и на респонс вешать
     {
-        return null;
     }
 
     public Set<ConstraintViolation<TestOverrideAttributes>> testOverrideAttributes( TestOverrideAttributes dto )
@@ -70,7 +70,7 @@ public class ValidationService
         return false;
     }
 
-    @ParameterScriptAssert( lang = "javascript", script = "min <= max" )
+    @ParameterScriptAssert( lang = "javascript", script = "min <= max" )   //только js доступен по дефолту
     public boolean testParameterScriptAssert( int min, int max )
     {
         return false;
@@ -97,6 +97,11 @@ public class ValidationService
     public boolean testValidateFieldInheritance( @Valid InheritanceValidationTest obj )   //работает благодаря @Validated над классом
     {
         return false;
+    }
+
+    public void testMessageInterpolation( @Valid TestMessageInterpolation obj )
+    {
+
     }
 
 }

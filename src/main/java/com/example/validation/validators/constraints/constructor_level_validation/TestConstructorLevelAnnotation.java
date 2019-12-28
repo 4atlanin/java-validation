@@ -1,10 +1,6 @@
 package com.example.validation.validators.constraints.constructor_level_validation;
 
-import com.example.validation.validators.constraints.constructor_level_validation.ConstructorLevelCheck;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.Size;
 
