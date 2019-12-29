@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
 @Validated     //required
 @Setter        //required
 @ConfigurationProperties( prefix = "test.value" )
-public class ValidationConfig
+public class ValidationConfigTest
 {
     // Удивительно, но @Valid тут не нужен, Проверка выполняется и каскадируется без него.
     // Да, я разносил классы по разным файлам, всё ещё работает. Т.е. Это не из-за того что все классы в одном файле.

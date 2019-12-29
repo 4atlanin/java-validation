@@ -208,4 +208,42 @@ class ValidationApplicationTests
         assertTrue( messages.contains( "Amount of whitespaces in the blank String is    . Formatted part is '   '." ) );
         assertTrue( messages.contains( "it's my own validation message min = 1 and max = 2 and validatedValue = qwe" ) );
     }
+
+    @Test
+    void testMyOwnMessageInterpolator() {
+        List<String> messages = validationService.testMyOwnMessageInterpolator(new TestMessageInterpolation( "q", "   " ) )
+                .stream()
+                .map( ConstraintViolation::getMessage )
+                .collect( Collectors.toList() );
+
+        assertEquals( 1, messages.size() );
+        assertTrue( messages.contains( "Annotation - javax.validation.constraints.NotBlank\n" +
+                "Message template - Amount of whitespaces in the blank String is ${validatedValue}. Formatted part is '${formatter.format('%s', validatedValue)}'.\n" +
+                "Validated value -    \n" ) );
+    }
+
+    @Test
+    void testMyOwnMessageSource() {
+        List<String> messages = validationService
+                .testMyOwnMessageSourceFile(new TestCombinedAnnotationWithReportAsSingleViolation( "   " ) )
+                .stream()
+                .map( ConstraintViolation::getMessage )
+                .collect( Collectors.toList() );
+
+        assertEquals( 1, messages.size() );
+        assertTrue( messages.contains( "Test message from my own file" ) );
+    }
+
+
+    @Test
+    void testReadFromManyMessageSources() {
+        List<String> messages = validationService
+                .testReadFromManyMessageSources(new TestCombinedAnnotationWithReportAsSingleViolation( "   " ) )
+                .stream()
+                .map( ConstraintViolation::getMessage )
+                .collect( Collectors.toList() );
+
+        assertEquals( 1, messages.size() );
+        assertTrue( messages.contains( "Test message from file to show aggregation of message sources" ) );
+    }
 }
