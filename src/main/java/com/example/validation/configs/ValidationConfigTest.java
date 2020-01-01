@@ -1,4 +1,4 @@
-package com.example.validation.validators.configs;
+package com.example.validation.configs;
 
 import lombok.Data;
 import lombok.Setter;

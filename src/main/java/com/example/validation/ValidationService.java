@@ -1,6 +1,6 @@
 package com.example.validation;
 
-import com.example.validation.validators.configs.MyOwnMessageInterpolator;
+import com.example.validation.configs.MyOwnMessageInterpolator;
 import com.example.validation.validators.constraints.class_level_validation.TestClassLevelAnnotation;
 import com.example.validation.validators.constraints.constructor_level_validation.TestConstructorLevelAnnotation;
 import com.example.validation.validators.constraints.custom_validation.TestCustomAnnotation;
