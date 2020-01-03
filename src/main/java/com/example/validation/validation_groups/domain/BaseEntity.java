@@ -13,7 +13,7 @@ public class BaseEntity {
     /**
      * javax.validation.groups.Default - group which is used by default
      */
-    @NotNull            // the same as @NotNull(groups = Default.class)
+    @NotNull(message = "parent string must not be null")            // the same as @NotNull(groups = Default.class)
     private String notNull;
 
     @AssertTrue(groups = {BaseGroup.class})

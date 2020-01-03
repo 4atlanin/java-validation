@@ -1,6 +1,7 @@
 package com.example.validation.validation_groups.domain;
 
 import com.example.validation.configs.groups.BaseGroup;
+import com.example.validation.configs.groups.OrderedSequence;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

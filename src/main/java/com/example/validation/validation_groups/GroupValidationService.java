@@ -1,8 +1,6 @@
 package com.example.validation.validation_groups;
 
-import com.example.validation.validation_groups.domain.BaseEntity;
-import com.example.validation.validation_groups.domain.DelegateBaseEntity;
-import com.example.validation.validation_groups.domain.RedefineDefault;
+import com.example.validation.validation_groups.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +26,16 @@ public class GroupValidationService {
     }
 
     public Set<ConstraintViolation<RedefineDefault>> defaultRedefining(RedefineDefault baseEntity, Class... groupsToValidate) {
+        return validator.validate(baseEntity, groupsToValidate);
+    }
+
+    public Set<ConstraintViolation<GroupSequenceProviderEntity>>
+    groupSequenceProvider(GroupSequenceProviderEntity baseEntity, Class... groupsToValidate) {
+        return validator.validate(baseEntity, groupsToValidate);
+    }
+
+    public Set<ConstraintViolation<ConvertGroupEntity>>
+    groupConversion(ConvertGroupEntity baseEntity, Class... groupsToValidate) {
         return validator.validate(baseEntity, groupsToValidate);
     }
 

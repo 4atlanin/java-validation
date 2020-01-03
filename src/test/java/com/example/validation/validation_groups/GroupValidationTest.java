@@ -3,9 +3,7 @@ package com.example.validation.validation_groups;
 import com.example.validation.configs.groups.BaseGroup;
 import com.example.validation.configs.groups.GroupInheritance;
 import com.example.validation.configs.groups.OrderedSequence;
-import com.example.validation.validation_groups.domain.BaseEntity;
-import com.example.validation.validation_groups.domain.DelegateBaseEntity;
-import com.example.validation.validation_groups.domain.RedefineDefault;
+import com.example.validation.validation_groups.domain.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -43,7 +41,7 @@ public class GroupValidationTest {
                 .collect( Collectors.toList() );
 
         assertEquals(1, messages.size());
-        assertTrue( messages.contains("must not be null"));
+        assertTrue( messages.contains("parent string must not be null"));
     }
 
     @Test
@@ -55,7 +53,7 @@ public class GroupValidationTest {
                 .collect( Collectors.toList() );
 
         assertEquals(1, messages.size());
-        assertTrue( messages.contains("must not be null"));
+        assertTrue( messages.contains("parent string must not be null"));
     }
 
     @Test
@@ -80,7 +78,7 @@ public class GroupValidationTest {
 
         assertEquals(2, messages.size());
         assertTrue( messages.contains("must be true"));
-        assertTrue( messages.contains("must not be null"));
+        assertTrue( messages.contains("parent string must not be null"));
     }
 
     @Test
@@ -129,11 +127,12 @@ public class GroupValidationTest {
                 .collect( Collectors.toList() );
 
         assertEquals(1, messages.size());
+        //т.е. валидатор  по умолчаию проверяет только BaseGroup,
         assertTrue( messages.contains("size must be between 10 and 2147483647"));
     }
 
     @Test
-    void testPost() throws Exception
+    void testGroupValidationInController() throws Exception
     {
         String response = mockMvc.perform( post( "/group-validated" )
                 .content( "{\"baseEntity\" : {\"boolValue\" : \"false\"}, \"nullValue\" : 4}" ).contentType( MediaType.APPLICATION_JSON ) )
@@ -143,5 +142,55 @@ public class GroupValidationTest {
 
         assertTrue(response.contains("\"defaultMessage\":\"must be true\""));
         assertEquals(497, response.length());
+    }
+    @Test
+    void testGroupSequenceProviderTest() throws Exception
+    {
+        List<String> messages = groupValidationService
+                // по флагу true в MyGroupSequenceProvider будет выбрана группа для валидации
+                .groupSequenceProvider(new GroupSequenceProviderEntity(true, null, null))
+                .stream()
+                .map( ConstraintViolation::getMessage )
+                .collect( Collectors.toList() );
+
+        assertEquals(1, messages.size());
+        assertTrue( messages.contains("integer must be not null"));
+
+        messages = groupValidationService
+                // по флагу false в MyGroupSequenceProvider будет выбрана группа для валидации
+                .groupSequenceProvider(new GroupSequenceProviderEntity(false, null, null))
+                .stream()
+                .map( ConstraintViolation::getMessage )
+                .collect( Collectors.toList() );
+
+        assertEquals(2, messages.size());
+        assertTrue( messages.contains("string must be not null"));
+        assertTrue( messages.contains("integer must be not null"));
+    }
+
+    @Test
+    void testConvertGroupTest() throws Exception
+    {
+        List<String> messages = groupValidationService
+                // Сконвертирует Default в BaseGroup, т.е. сработают 2 валидации
+                .groupConversion(new ConvertGroupEntity(new BaseEntity(null, false), null), Default.class)
+                .stream()
+                .map( ConstraintViolation::getMessage )
+                .collect( Collectors.toList() );
+
+        assertEquals(2, messages.size());
+        assertTrue( messages.contains("must be true"));
+        assertTrue( messages.contains("child string must not be null"));
+
+        messages = groupValidationService
+                // Нет конверсии, т.к. используется группа BaseGroup, а не Default
+                .groupConversion(new ConvertGroupEntity(new BaseEntity(null, false), null), BaseGroup.class)
+                .stream()
+                .map( ConstraintViolation::getMessage )
+                .collect( Collectors.toList() );
+
+        assertEquals(1, messages.size());
+        assertTrue( messages.contains("must be true"));
+
     }
 }
