@@ -1,0 +1,3 @@
+com.example.validation.extractors.GenericContainerValueExtractor
+com.example.validation.extractors.GenericContainerKeyExtractor
+com.example.validation.extractors.NonGenericContainerExtractor
