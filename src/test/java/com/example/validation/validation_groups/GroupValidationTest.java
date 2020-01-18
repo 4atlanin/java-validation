@@ -98,6 +98,20 @@ public class GroupValidationTest {
     }
 
     @Test
+    void testTraversable() {
+        List<String> messages = groupValidationService
+                .traversableResolver(new DelegateBaseEntity(
+                        new BaseEntity(null, false), 4), GroupInheritance.class, BaseGroup.class)
+                .stream()
+                .map( ConstraintViolation::getMessage )
+                .collect( Collectors.toList() );
+
+        //только одна ошибка, т.к. каскадирование было выключено в MyTraversableResolver.
+        assertEquals(1, messages.size());
+        assertTrue( messages.contains("must be null"));
+    }
+
+    @Test
     void testOrderedChecks() {
 
         //Если поменять в OrderSequence порядок классов, то ошибки будут другие.

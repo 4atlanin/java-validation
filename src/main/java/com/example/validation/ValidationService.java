@@ -1,6 +1,8 @@
 package com.example.validation;
 
 import com.example.validation.configs.MyOwnMessageInterpolator;
+import com.example.validation.configs.MyTraversableResolver;
+import com.example.validation.configs.MyValidationProviderResolver;
 import com.example.validation.validators.constraints.class_level_validation.TestClassLevelAnnotation;
 import com.example.validation.validators.constraints.constructor_level_validation.TestConstructorLevelAnnotation;
 import com.example.validation.validators.constraints.custom_validation.TestCustomAnnotation;
@@ -57,7 +59,15 @@ public class ValidationService {
     }
 
     public Set<ConstraintViolation<TestClassLevelAnnotation>> testClassLevelAnnotation(TestClassLevelAnnotation dto) {
-        return validator.validate(dto);
+        Validator localValidator = Validation.byDefaultProvider()
+                //плюс тут проверим ещё как работает кастомный провайдер резолвер.
+                //он копипаста куска кода из либы
+                .providerResolver(new MyValidationProviderResolver())
+                .configure()
+                .buildValidatorFactory()
+                .getValidator();
+
+        return localValidator.validate(dto);
     }
 
     public boolean testValidateMethodParameter(@NotNull TestClassLevelAnnotation dto)   //работает благодаря @Validated над классом

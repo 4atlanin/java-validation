@@ -107,7 +107,7 @@ class ValidationApplicationTests
     }
 
     @Test
-    void testClassLevelAnnotation()
+    void testClassLevelAnnotationAndCustomProviderResolver()
     {
         TestClassLevelAnnotation testOverrideAttributes = new TestClassLevelAnnotation( 10, 0, "   " );
         List<String> messages = validationService.testClassLevelAnnotation( testOverrideAttributes )
