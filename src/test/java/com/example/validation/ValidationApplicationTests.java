@@ -246,4 +246,15 @@ class ValidationApplicationTests
         assertEquals( 1, messages.size() );
         assertTrue( messages.contains( "Test message from file to show aggregation of message sources" ) );
     }
+
+    @Test
+    public void testParameterNameProvider() {
+        List<String> messages = validationService.testParameterNameProvider( 12, 1 )
+                .stream()
+                .map( ConstraintViolation::getMessage )
+                .collect( Collectors.toList() );
+
+        assertTrue( messages.contains( "validate all parameters of method" ) );
+    }
+
 }

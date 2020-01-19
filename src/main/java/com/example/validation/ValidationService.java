@@ -1,6 +1,7 @@
 package com.example.validation;
 
 import com.example.validation.configs.MyOwnMessageInterpolator;
+import com.example.validation.configs.MyParameterNameProvider;
 import com.example.validation.configs.MyTraversableResolver;
 import com.example.validation.configs.MyValidationProviderResolver;
 import com.example.validation.validators.constraints.class_level_validation.TestClassLevelAnnotation;
@@ -27,6 +28,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -155,4 +157,34 @@ public class ValidationService {
 
         return localValidator.validate(obj);
     }
+
+    @MethodLevelCheck(min = 10, max = 20, message = "{min} or {max} are invalid")
+    public boolean testPNPMethod(int min, int max) {
+        return false;
+    }
+
+    public Set<ConstraintViolation<ValidationService>> testParameterNameProvider(int min, int max) {
+        Validator localValidator = Validation.byDefaultProvider()
+                .configure()
+                .parameterNameProvider(new MyParameterNameProvider())
+                .buildValidatorFactory()
+                .getValidator();
+//todo пока непонятно, что я должен получить
+        return localValidator.forExecutables().validateParameters(this,
+                ReflectionUtils.findMethod(ValidationService.class, "testPNPMethod", int.class, int.class),
+                new Object[]{min, max});
+    }
+
+    public Set<ConstraintViolation<ValidationService>> testDurationTolerance(LocalDateTime dt) {
+        Validator localValidator = Validation.byDefaultProvider()
+                .configure()
+                .buildValidatorFactory()
+                .getValidator();
+//todo пока непонятно, что я должен получить
+        return localValidator.forExecutables().validateParameters(this,
+                ReflectionUtils.findMethod(ValidationService.class, "testPNPMethod", int.class, int.class),
+                new Object[]{min, max});
+    }
+
+
 }
