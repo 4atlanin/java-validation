@@ -14,7 +14,10 @@ import java.util.Set;
 
 @Service
 public class GroupValidationService {
+
     @Autowired
+    //показывает, что заинжектить нужно именно хибернейтовскую имплементацию провайдера
+    @org.hibernate.validator.cdi.HibernateValidator
     private Validator validator;
 
     public Set<ConstraintViolation<BaseEntity>> simpleExampleGroupValidation(BaseEntity baseEntity, Class... groupsToValidate) {

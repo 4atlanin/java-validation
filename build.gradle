@@ -19,6 +19,9 @@ repositories {
 }
 
 dependencies {
+    // Для @HibernateValidator
+    implementation group: 'org.hibernate.validator', name: 'hibernate-validator-cdi', version: '6.1.2.Final'
+    compile group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.1.2.Final'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

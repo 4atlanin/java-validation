@@ -9,10 +9,12 @@ import com.example.validation.validators.constraints.constructor_level_validatio
 import com.example.validation.validators.constraints.custom_validation.TestCustomAnnotation;
 import com.example.validation.validators.constraints.method_level_validation.MethodLevelCheck;
 import com.example.validation.validators.constraints.validation_with_inheritance.InheritanceValidationTest;
-import com.example.validation.validators.domain.TestCombinedAnnotationWithReportAsSingleViolation;
-import com.example.validation.validators.domain.TestListOfAnnotations;
-import com.example.validation.validators.domain.TestMessageInterpolation;
-import com.example.validation.validators.domain.TestOverrideAttributes;
+import com.example.validation.validators.domain.*;
+import org.hibernate.validator.HibernateValidator;
+import org.hibernate.validator.HibernateValidatorConfiguration;
+import org.hibernate.validator.cfg.ConstraintMapping;
+import org.hibernate.validator.cfg.defs.NotNullDef;
+import org.hibernate.validator.cfg.defs.SizeDef;
 import org.hibernate.validator.constraints.ParameterScriptAssert;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
@@ -28,6 +30,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
+import java.lang.annotation.ElementType;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Set;
@@ -44,6 +47,11 @@ public class ValidationService {
     }
 
     public Set<ConstraintViolation<TestCombinedAnnotationWithReportAsSingleViolation>> testReportAsSingleViolation(TestCombinedAnnotationWithReportAsSingleViolation dto) {
+        return validator.validate(dto);
+    }
+
+    public Set<ConstraintViolation<TestCombinedAnnotationWithORLogic>>
+    testValidateOrComposing(TestCombinedAnnotationWithORLogic dto) {
         return validator.validate(dto);
     }
 
@@ -175,16 +183,31 @@ public class ValidationService {
                 new Object[]{min, max});
     }
 
-    public Set<ConstraintViolation<ValidationService>> testDurationTolerance(LocalDateTime dt) {
-        Validator localValidator = Validation.byDefaultProvider()
-                .configure()
+    //Пример, как настраивать ограничения вручную(без аннотаций).
+    // Можно и каскады прокидывать, и кастомные аннотации использовать.
+    // Доп инфу смотри в главе 12.4
+    public Set<ConstraintViolation<TestListOfAnnotations>> testConstraintsFluentApi(TestListOfAnnotations obj) {
+        HibernateValidatorConfiguration configuration = Validation
+                .byProvider( HibernateValidator.class )
+                .configure();
+
+        ConstraintMapping constraintMapping = configuration.createConstraintMapping();
+
+        constraintMapping
+                .type( TestListOfAnnotations.class )
+                    .property("listOfAnnotations", ElementType.FIELD)
+                        .ignoreAnnotations(true)
+                        .constraint( new NotNullDef() )
+                    .property( "justTwoAnnotations", ElementType.FIELD )
+                        .ignoreAnnotations( true )
+                        .constraint( new NotNullDef() )
+                        .constraint( new SizeDef().min( 2 ).max( 3 ) );
+
+        Validator validator = configuration
+                .addMapping(constraintMapping)
                 .buildValidatorFactory()
                 .getValidator();
-//todo пока непонятно, что я должен получить
-        return localValidator.forExecutables().validateParameters(this,
-                ReflectionUtils.findMethod(ValidationService.class, "testPNPMethod", int.class, int.class),
-                new Object[]{min, max});
+
+        return validator.validate(obj);
     }
-
-
 }

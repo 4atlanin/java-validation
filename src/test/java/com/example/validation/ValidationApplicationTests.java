@@ -3,10 +3,7 @@ package com.example.validation;
 import com.example.validation.validators.constraints.class_level_validation.TestClassLevelAnnotation;
 import com.example.validation.validators.constraints.custom_validation.TestCustomAnnotation;
 import com.example.validation.validators.constraints.validation_with_inheritance.InheritanceValidationTest;
-import com.example.validation.validators.domain.TestCombinedAnnotationWithReportAsSingleViolation;
-import com.example.validation.validators.domain.TestListOfAnnotations;
-import com.example.validation.validators.domain.TestMessageInterpolation;
-import com.example.validation.validators.domain.TestOverrideAttributes;
+import com.example.validation.validators.domain.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -255,6 +252,41 @@ class ValidationApplicationTests
                 .collect( Collectors.toList() );
 
         assertTrue( messages.contains( "validate all parameters of method" ) );
+    }
+
+    @Test
+    public void testJavaFluentConstraintDefinition() {
+        TestListOfAnnotations tloa = new TestListOfAnnotations(null, "a");
+        List<String> messages = validationService.testConstraintsFluentApi(tloa)
+                .stream()
+                .map( ConstraintViolation::getMessage )
+                .collect( Collectors.toList() );
+        assertEquals(messages.size(), 2);
+        assertTrue(messages.contains("must not be null"));
+        assertTrue(messages.contains("size must be between 2 and 3"));
+    }
+
+    @Test
+    public void testCompositionOrLogic() {
+        List<String> messages = validationService.testValidateOrComposing(
+                new TestCombinedAnnotationWithORLogic(" sdf sd "))
+                .stream()
+                .map( ConstraintViolation::getMessage )
+                .collect( Collectors.toList() );
+//ошибок нет, несмотря на то, что в строке есть пробелы.
+        //Условие: строка не пустая(true) или не содержит пробелов(false) == true
+        assertTrue(messages.isEmpty());
+
+        messages = validationService.testValidateOrComposing(
+                new TestCombinedAnnotationWithORLogic(" "))
+                .stream()
+                .map( ConstraintViolation::getMessage )
+                .collect( Collectors.toList() );
+
+        //Появилась ошибка, т.к. все условия не выполняются.
+        //Условие: строка не пустая(false) или не содержит пробелов(false) == false
+        assertFalse(messages.isEmpty());
+        assertTrue(messages.contains("Logical or between composed constraints"));
     }
 
 }
