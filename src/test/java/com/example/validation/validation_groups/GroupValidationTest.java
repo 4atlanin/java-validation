@@ -96,7 +96,6 @@ public class GroupValidationTest {
         assertTrue( messages.contains("must be true"));
         assertTrue( messages.contains("must be null"));
     }
-
     @Test
     void testTraversable() {
         List<String> messages = groupValidationService
