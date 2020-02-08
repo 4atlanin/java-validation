@@ -1,18 +1,17 @@
 package com.example.validation;
 
+import com.example.validation.configs.MyClockProvider;
 import com.example.validation.configs.MyOwnMessageInterpolator;
 import com.example.validation.configs.MyParameterNameProvider;
-import com.example.validation.configs.MyTraversableResolver;
 import com.example.validation.configs.MyValidationProviderResolver;
 import com.example.validation.validators.constraints.class_level_validation.TestClassLevelAnnotation;
 import com.example.validation.validators.constraints.constructor_level_validation.TestConstructorLevelAnnotation;
 import com.example.validation.validators.constraints.custom_validation.TestCustomAnnotation;
 import com.example.validation.validators.constraints.method_level_validation.MethodLevelCheck;
 import com.example.validation.validators.constraints.validation_with_inheritance.InheritanceValidationTest;
-import com.example.validation.validators.domain.TestCombinedAnnotationWithReportAsSingleViolation;
-import com.example.validation.validators.domain.TestListOfAnnotations;
-import com.example.validation.validators.domain.TestMessageInterpolation;
-import com.example.validation.validators.domain.TestOverrideAttributes;
+import com.example.validation.validators.domain.*;
+import lombok.Getter;
+import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.constraints.ParameterScriptAssert;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import org.hibernate.validator.resourceloading.AggregateResourceBundleLocator;
@@ -28,7 +27,9 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -37,6 +38,7 @@ import java.util.Set;
 //нужно для работы валидаций на параметрах метода. Если небылобы спринг бута, нужно былобы зарегать MethodValidationPostProcessor бин
 public class ValidationService {
     @Autowired
+    @Getter
     private Validator validator;
 
     public Set<ConstraintViolation<TestCustomAnnotation>> validateCustomAnnotation(TestCustomAnnotation validationPOSTDTO) {
@@ -175,16 +177,30 @@ public class ValidationService {
                 new Object[]{min, max});
     }
 
-    public Set<ConstraintViolation<ValidationService>> testDurationTolerance(LocalDateTime dt) {
+    //Выставили Текущее время на 2016 год, теперь @Past и @Future работают думают что сейчас 2016
+    public Set<ConstraintViolation<TestClockConfigurationEntity>> testClockProvider( TestClockConfigurationEntity tcce )
+    {
         Validator localValidator = Validation.byDefaultProvider()
-                .configure()
-                .buildValidatorFactory()
-                .getValidator();
-//todo пока непонятно, что я должен получить
-        return localValidator.forExecutables().validateParameters(this,
-                ReflectionUtils.findMethod(ValidationService.class, "testPNPMethod", int.class, int.class),
-                new Object[]{min, max});
+                                             .configure()
+                                             .clockProvider( new MyClockProvider(
+                                                 ZonedDateTime.of( 2016, 6, 15, 0, 0, 0, 0,
+                                                     ZoneId.of( "Europe/Paris" ) ) ) )
+                                             .buildValidatorFactory()
+                                             .getValidator();
+
+        return localValidator.validate( tcce );
     }
 
+    //temporalValidationTolerance Позволяет выставлять допустимую погрешность при валидации дат и времени.
+    public Set<ConstraintViolation<TestClockConfigurationEntity>> testTimeValidationTolerance( TestClockConfigurationEntity tcce )
+    {
+        Validator localValidator = Validation.byProvider( HibernateValidator.class )
+                                             .configure()
+                                             .temporalValidationTolerance( Duration.ofDays( 30 ) )
+                                             .buildValidatorFactory()
+                                             .getValidator();
+
+        return localValidator.validate( tcce );
+    }
 
 }

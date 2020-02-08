@@ -1,12 +1,10 @@
 package com.example.validation;
 
+import com.example.validation.validation_groups.domain.DelegateBaseEntity;
 import com.example.validation.validators.constraints.class_level_validation.TestClassLevelAnnotation;
 import com.example.validation.validators.constraints.custom_validation.TestCustomAnnotation;
 import com.example.validation.validators.constraints.validation_with_inheritance.InheritanceValidationTest;
-import com.example.validation.validators.domain.TestCombinedAnnotationWithReportAsSingleViolation;
-import com.example.validation.validators.domain.TestListOfAnnotations;
-import com.example.validation.validators.domain.TestMessageInterpolation;
-import com.example.validation.validators.domain.TestOverrideAttributes;
+import com.example.validation.validators.domain.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,6 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import javax.validation.metadata.BeanDescriptor;
+import java.lang.annotation.ElementType;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -247,6 +248,8 @@ class ValidationApplicationTests
         assertTrue( messages.contains( "Test message from file to show aggregation of message sources" ) );
     }
 
+
+/*   хз что тут ожидать
     @Test
     public void testParameterNameProvider() {
         List<String> messages = validationService.testParameterNameProvider( 12, 1 )
@@ -255,6 +258,54 @@ class ValidationApplicationTests
                 .collect( Collectors.toList() );
 
         assertTrue( messages.contains( "validate all parameters of method" ) );
+    }
+*/
+
+    @Test
+    public void testClockProvider()
+    {
+        List<String> messages = validationService.testClockProvider(
+            new TestClockConfigurationEntity(
+                LocalDateTime.of( 2015, 1, 1, 1, 1 ),
+                LocalDateTime.of( 2019, 1, 1, 1, 1 ) ) )
+                                                 .stream()
+                                                 .map( ConstraintViolation::getMessage )
+                                                 .collect( Collectors.toList() );
+
+        assertEquals( 2, messages.size() );
+        assertTrue( messages.contains( "must be a date in the past or in the present" ) );
+        assertTrue( messages.contains( "must be a date in the present or in the future" ) );
+    }
+
+    //Сделали Duration.ofDays( 30 ) и тест показывает, что для +-29 дней от now() валидатор воспринимает как текущий момент времени
+    @Test
+    public void testTimeValidationTolerance()
+    {
+        List<String> messages = validationService.testTimeValidationTolerance(
+            new TestClockConfigurationEntity(
+                LocalDateTime.now().plusDays( 29 ), LocalDateTime.now().minusDays( 29 ) ) )
+                                                 .stream()
+                                                 .map( ConstraintViolation::getMessage )
+                                                 .collect( Collectors.toList() );
+
+        assertEquals( 0, messages.size() );
+    }
+
+    @Test
+    public void testGetConstraintsForClass()
+    {
+        //BeanDescriptor содержит метадату по констрэйнтам класса
+        //PropertyDescriptor содержит метадату по валидируемой проперти. BeanDescriptor#getConstraintsForProperty( "propName" )
+        //ConstraintDescriptors содержит инфу об валидационной аннотации (message, payload и тд). BeanDescriptor#getConstraintDescriptors()
+        //ConstructorDescriptor содержит метадату по валидируемому консруктору. BeanDescriptor#getConstrainedConstructors()
+        //MethodDescriptor содержит метадату по валидируемому методу. BeanDescriptor#getConstrainedMethods()
+        BeanDescriptor descriptor = validationService.getValidator().getConstraintsForClass( DelegateBaseEntity.class );
+        //   assertEquals( descriptor.getConstrainedProperties().size(), 2 );
+
+        //findConstraints возвращает ConstraintFinder, который предоставляет fluentAPI для поиска по ConstraintDescriptors
+        //у дескрипотра на котором вызывается findConstraints() должны быть
+        descriptor.getConstrainedProperties()
+                  .forEach( propertyDescriptor -> assertTrue( propertyDescriptor.findConstraints().declaredOn( ElementType.FIELD ).hasConstraints() ) );
     }
 
 }
