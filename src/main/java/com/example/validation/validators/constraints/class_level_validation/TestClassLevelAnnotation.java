@@ -1,6 +1,5 @@
 package com.example.validation.validators.constraints.class_level_validation;
 
-import com.example.validation.validators.constraints.class_level_validation.ClassLevelCheck;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

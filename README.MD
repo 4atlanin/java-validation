@@ -64,6 +64,10 @@ is specific to Hibernate Validator and is not mandated by the JavaBeans specific
 #### Настройка имён полей которые будут использоваться валидатором, показваться в сообщениях и violation.getPropertyPath().toString()
  - стр 180, 
     12.16. Customizing the property name resolution for constraint violations.
+    
+#### Порядок вызова валидаций не определён. Чтобы гарантировать порялок - юзай GroupSequences
+ - стр 158, 
+    12.2. Fail fast mode
 
  
  
